@@ -13,18 +13,8 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 const app = express();
 app.use(express.json());
 
-
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
-
-// parse application/x-www-form-urlencoded
-//app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-//app.use(bodyParser.json())
-
-
-// TODO setup your api routes here
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
@@ -32,11 +22,6 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
-
-// app.use(function (req, res) {
-//   res.setHeader('Content-Type', 'text/plain')
-// res.end(JSON.stringify(req.body, null, 2))
-// })
 
 // Add routes.
 app.use('/api', routes);

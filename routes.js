@@ -165,7 +165,7 @@ router.put('/courses/:id', authenticateUser, function (req, res) {
       Course.findByPk(req.params.id).then(function (course) {
         if (!req.body.title || !req.body.description) {
           return res.status(400).json({ 'Error': 'Title and Description are required' }).end()
-        } else if (course.userId !== user.id) {
+        } else if (course && course.userId !== user.id) {
           return res.status(400).json({ 'Error': 'Only the course creator may update the course' }).end()
         }
         else if (course) {
@@ -201,7 +201,7 @@ router.delete("/courses/:id", authenticateUser, function (req, res, next) {
     }
   }).then(async function (user) {
       Course.findByPk(req.params.id).then(function (course) {
-        if (course.userId !== user.id) {
+        if (course && course.userId !== user.id) {
           return res.status(400).json({ 'Error': 'Only the course creator may delete the course' }).end()
         }
         else if (course) {
@@ -209,7 +209,7 @@ router.delete("/courses/:id", authenticateUser, function (req, res, next) {
             return res.status(201).end();
           });
         } else {
-          res.send(404);
+          return res.json({ 'Error': 'This course does not exist' });
         }
       }).catch(function (err) {
         res.send(500);

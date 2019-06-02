@@ -8,6 +8,7 @@ const Sequelize = require('sequelize');
 const { User, Course } = models;
 const router = express.Router();
 
+const currentUser = [];
 
 sequelize
   .authenticate()
@@ -19,14 +20,14 @@ sequelize
 const authenticateUser = (req, res, next) => {
   const credentials = auth(req);
   if (credentials) {
-    const user = User.findOne({
+    User.findOne({
       where: {
         emailAddress: credentials.name
       }
     })
       .then(function (user) {
         if (!user) {
-          res.status(404).json({ message: 'Invalid Username' });
+          res.status(400).json({ message: 'Invalid Username' });
         }
         else {
           bcryptjs.compare(credentials.pass, user.password, function (err, result) {
@@ -34,13 +35,13 @@ const authenticateUser = (req, res, next) => {
               console.log(`Authentication successful for username: ${user.emailAddress}`);
               next();
             } else {
-              res.status(401).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
+              res.status(400).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
             }
           });
         }
       });
   } else {
-    res.status(401).json({ message: 'Not logged in' });
+    res.status(400).json({ message: 'Not logged in' });
   }
 };
 
@@ -51,7 +52,7 @@ router.get('/users', authenticateUser, (req, res) => {
       emailAddress: credentials.name
     }
   }).then(async function (user) {
-    console.log(credentials.name)
+    //console.log(credentials.name)
     if (!user) {
       return res.sendStatus(400);
     } else {
@@ -102,11 +103,11 @@ router.get('/courses/:id', (req, res) => {
       }
     ]
   }).then(function (courses) {
-    console.log(courses)
+    //console.log(courses)
     if (!courses.length) {
-      return res.json({'Error' : 'No Course Found With This Id'});
+      return res.json({ 'Error': 'No Course Found With This Id' });
     } else {
-    return res.json(courses)
+      return res.json(courses)
     }
   }).catch(function (err) {
     res.send(500);
@@ -115,8 +116,7 @@ router.get('/courses/:id', (req, res) => {
 
 router.post('/users', function (req, res) {
   User.create(req.body).then(function (user) {
-    console.log(user)
-    return res.status(201).end();
+    return res.location('/').status(201).end();
   }).catch(function (err) {
     if (err.name === "SequelizeValidationError") {
       return res.json({ 'Error': err.message });
@@ -135,10 +135,6 @@ router.post('/courses', authenticateUser, function (req, res) {
       emailAddress: credentials.name
     }
   }).then(async function (user) {
-    if (!user) {
-      return res.status(401).json({ message: 'Access Denied - Not Logged in' }).end();
-    }
-    else {
       Course.create({
         title: req.body.title,
         description: req.body.description,
@@ -146,7 +142,7 @@ router.post('/courses', authenticateUser, function (req, res) {
         materialsNeeded: req.body.materialsNeeded,
         userId: user.id
       }).then(function (course) {
-        console.log(course)
+        //console.log(course)
         return res.status(201).end()
       }).catch(function (err) {
         if (err.name === "SequelizeValidationError") {
@@ -157,7 +153,6 @@ router.post('/courses', authenticateUser, function (req, res) {
       }).catch(function (err) {
         res.send(500);
       });
-    }
   });
 });
 router.put('/courses/:id', authenticateUser, function (req, res) {
@@ -167,39 +162,36 @@ router.put('/courses/:id', authenticateUser, function (req, res) {
       emailAddress: credentials.name
     }
   }).then(async function (user) {
-    if (!user) {
-      return res.status(401).json({ message: 'Access Denied - Not Logged in' }).end();
-    }
-    else {
       Course.findByPk(req.params.id).then(function (course) {
-       if (!req.body.title || !req.body.description) {
-        return res.status(400).json({ 'Error':'Title and Description are required' }).end()
-       }
-      if (course) { 
-        course.update({
-          title: req.body.title,
-          description: req.body.description,
-          estimatedTime: req.body.estimatedTime,
-          materialsNeeded: req.body.materialsNeeded,
-          userId: user.id
-        }).then(function (course) {
-          console.log(course)
-          return res.status(201).end()
-        }).catch(function (err) {
-          if (err.name === "SequelizeValidationError") {
-            return res.json({ 'Error': err.message });
-          } else {
-            throw err;
-          }
-        }).catch(function (err) {
-          res.send(500);
-        });
-      } else {
-        return res.json({ 'Error': 'This course does not exist' });
-      }
+        if (!req.body.title || !req.body.description) {
+          return res.status(400).json({ 'Error': 'Title and Description are required' }).end()
+        } else if (course.userId !== user.id) {
+          return res.status(400).json({ 'Error': 'Only the course creator may update the course' }).end()
+        }
+        else if (course) {
+          course.update({
+            title: req.body.title,
+            description: req.body.description,
+            estimatedTime: req.body.estimatedTime,
+            materialsNeeded: req.body.materialsNeeded,
+            userId: user.id
+          }).then(function (course) {
+            //console.log(course)
+            return res.status(201).end()
+          }).catch(function (err) {
+            if (err.name === "SequelizeValidationError") {
+              return res.json({ 'Error': err.message });
+            } else {
+              throw err;
+            }
+          }).catch(function (err) {
+            res.send(500);
+          });
+        } else {
+          return res.json({ 'Error': 'This course does not exist' });
+        }
       });
-  } 
-});
+  });
 });
 router.delete("/courses/:id", authenticateUser, function (req, res, next) {
   const credentials = auth(req);
@@ -208,22 +200,20 @@ router.delete("/courses/:id", authenticateUser, function (req, res, next) {
       emailAddress: credentials.name
     }
   }).then(async function (user) {
-    if (!user) {
-      return res.status(401).json({ message: 'Access Denied - Not Logged in' }).end();
-    }
-    else {
       Course.findByPk(req.params.id).then(function (course) {
-        if (course) {
+        if (course.userId !== user.id) {
+          return res.status(400).json({ 'Error': 'Only the course creator may delete the course' }).end()
+        }
+        else if (course) {
           return course.destroy().then(function (course) {
             return res.status(201).end();
-          });  
+          });
         } else {
           res.send(404);
         }
       }).catch(function (err) {
         res.send(500);
       });
-    }
   });
 });
 

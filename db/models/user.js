@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
+        isEmail : {
+          args: true,
+          msg: "Must enter a valid email"
+        },
         notNull: {
           msg: 'Please enter email'
         },
@@ -64,7 +68,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
       hooks: {
         beforeCreate: async function (user) {
-          const salt = await bcryptjs.genSalt(10); //whatever number you want
+          const salt = await bcryptjs.genSalt(10); 
           user.password = await bcryptjs.hash(user.password, salt);
         }
       },

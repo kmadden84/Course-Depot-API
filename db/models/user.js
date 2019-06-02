@@ -87,9 +87,6 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
   };
-  sequelize.sync()
-    .then(() => console.log('users table has been successfully created, if one doesn\'t exist'))
-    .catch(error => console.log('This error occured', error));
-
+  
   return User;
 };

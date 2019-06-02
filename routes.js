@@ -10,13 +10,6 @@ const router = express.Router();
 
 const currentUser = [];
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Synchronizing the models with the database...');
-
-    return sequelize.sync();
-  })
 const authenticateUser = (req, res, next) => {
   const credentials = auth(req);
   if (credentials) {
@@ -27,7 +20,7 @@ const authenticateUser = (req, res, next) => {
     })
       .then(function (user) {
         if (!user) {
-          res.status(400).json({ message: 'Invalid Username' });
+          res.status(401).json({ message: 'Invalid Username' });
         }
         else {
           bcryptjs.compare(credentials.pass, user.password, function (err, result) {
@@ -35,13 +28,13 @@ const authenticateUser = (req, res, next) => {
               console.log(`Authentication successful for username: ${user.emailAddress}`);
               next();
             } else {
-              res.status(400).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
+              res.status(401).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
             }
           });
         }
       });
   } else {
-    res.status(400).json({ message: 'Not logged in' });
+    res.status(401).json({ message: 'Not logged in' });
   }
 };
 
@@ -52,7 +45,6 @@ router.get('/users', authenticateUser, (req, res) => {
       emailAddress: credentials.name
     }
   }).then(async function (user) {
-    //console.log(credentials.name)
     if (!user) {
       return res.sendStatus(400);
     } else {
@@ -103,7 +95,6 @@ router.get('/courses/:id', (req, res) => {
       }
     ]
   }).then(function (courses) {
-    //console.log(courses)
     if (!courses.length) {
       return res.json({ 'Error': 'No Course Found With This Id' });
     } else {
@@ -142,7 +133,6 @@ router.post('/courses', authenticateUser, function (req, res) {
         materialsNeeded: req.body.materialsNeeded,
         userId: user.id
       }).then(function (course) {
-        //console.log(course)
         return res.status(201).end()
       }).catch(function (err) {
         if (err.name === "SequelizeValidationError") {
@@ -176,7 +166,6 @@ router.put('/courses/:id', authenticateUser, function (req, res) {
             materialsNeeded: req.body.materialsNeeded,
             userId: user.id
           }).then(function (course) {
-            //console.log(course)
             return res.status(201).end()
           }).catch(function (err) {
             if (err.name === "SequelizeValidationError") {

@@ -48,7 +48,7 @@ router.get('/users', authenticateUser, (req, res) => {
     if (!user) {
       return res.sendStatus(400);
     } else {
-      return res.json({ 'User': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress });
+      return res.json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress });
     }
   });
 });

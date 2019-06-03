@@ -4,7 +4,7 @@
 const express = require('express');
 var bodyParser = require('body-parser');
 const morgan = require('morgan');
-const routes = require('./routes');
+//const routes = require('./routes');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -23,8 +23,15 @@ app.get('/', (req, res) => {
   });
 });
 
+// Define routes.
+
+const userRoutes = require('./routes/user');
+const courseRoutes = require('./routes/courses');
+
 // Add routes.
-app.use('/api', routes);
+
+app.use('/api/courses', courseRoutes);
+app.use('/api/users', userRoutes);
 
 // send 404 if no other route matched
 app.use((req, res) => {
@@ -52,3 +59,4 @@ app.set('port', process.env.PORT || 5000);
 const server = app.listen(app.get('port'), () => {
   console.log(`Express server is listening on port ${server.address().port}`);
 });
+

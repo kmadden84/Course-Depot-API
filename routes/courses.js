@@ -3,57 +3,15 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
-const { sequelize, models } = require('./db');
+const { sequelize, models } = require('../db');
 const Sequelize = require('sequelize');
 const { User, Course } = models;
 const router = express.Router();
+const authUser = require('./authenticateUser.js');
 
-const currentUser = [];
 
-const authenticateUser = (req, res, next) => {
-  const credentials = auth(req);
-  if (credentials) {
-    User.findOne({
-      where: {
-        emailAddress: credentials.name
-      }
-    })
-      .then(function (user) {
-        if (!user) {
-          res.status(401).json({ message: 'Invalid Username' });
-        }
-        else {
-          bcryptjs.compare(credentials.pass, user.password, function (err, result) {
-            if (result == true) {
-              console.log(`Authentication successful for username: ${user.emailAddress}`);
-              next();
-            } else {
-              res.status(401).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
-            }
-          });
-        }
-      });
-  } else {
-    res.status(401).json({ message: 'Not logged in' });
-  }
-};
 
-router.get('/users', authenticateUser, (req, res) => {
-  const credentials = auth(req);
-  User.findOne({
-    where: {
-      emailAddress: credentials.name
-    }
-  }).then(async function (user) {
-    if (!user) {
-      return res.sendStatus(400);
-    } else {
-      return res.json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress });
-    }
-  });
-});
-
-router.get('/courses', (req, res) => {
+router.get('/', (req, res) => {
   Course.findAll({
     order: [["id", "ASC"]],
     attributes: {
@@ -75,7 +33,7 @@ router.get('/courses', (req, res) => {
   });
 });
 
-router.get('/courses/:id', (req, res) => {
+router.get('/:id', (req, res) => {
   const courseId = req.params.id;
   Course.findAll({
     order: [["description", "DESC"]],
@@ -105,21 +63,7 @@ router.get('/courses/:id', (req, res) => {
   });
 });
 
-router.post('/users', function (req, res) {
-  User.create(req.body).then(function (user) {
-    return res.location('/').status(201).end();
-  }).catch(function (err) {
-    if (err.name === "SequelizeValidationError") {
-      return res.json({ 'Error': err.message });
-    } else {
-      throw err;
-    }
-  }).catch(function (err) {
-    res.send(500);
-  });
-});
-
-router.post('/courses', authenticateUser, function (req, res) {
+router.post('/', authUser.authenticateUser, function (req, res) {
   const credentials = auth(req);
   User.findOne({
     where: {
@@ -145,7 +89,7 @@ router.post('/courses', authenticateUser, function (req, res) {
       });
   });
 });
-router.put('/courses/:id', authenticateUser, function (req, res) {
+router.put('/:id', authUser.authenticateUser, function (req, res) {
   const credentials = auth(req);
   User.findOne({
     where: {
@@ -182,7 +126,7 @@ router.put('/courses/:id', authenticateUser, function (req, res) {
       });
   });
 });
-router.delete("/courses/:id", authenticateUser, function (req, res, next) {
+router.delete("/:id", authUser.authenticateUser, function (req, res, next) {
   const credentials = auth(req);
   User.findOne({
     where: {

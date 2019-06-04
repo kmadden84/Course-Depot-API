@@ -19,6 +19,7 @@ authenticateUser = (req, res, next) => {
         else {
           bcryptjs.compare(credentials.pass, user.password, function (err, result) {
             if (result == true) {
+              res.status(200);
               console.log(`Authentication successful for username: ${user.emailAddress}`);
               next();
             } else {

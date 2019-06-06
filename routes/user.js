@@ -19,9 +19,9 @@ router.get('/', authUser.authenticateUser, (req, res) => {
     }
   }).then(async function (user) {
     if (!user) {
-      return res.sendStatus(400).end();
+      return res.sendStatus(400);
     } else {
-      return res.sendStatus(200).json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress }).end();
+      return res.json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress });
     }
   });
 });
@@ -36,7 +36,7 @@ router.post('/', function (req, res) {
       throw err;
     }
   }).catch(function (err) {
-    res.send(500);
+    res.json({ 'Error': err });
   });
 });
 

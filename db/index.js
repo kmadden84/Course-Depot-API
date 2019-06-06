@@ -10,11 +10,11 @@ const options = {
   storage: 'fsjstd-restapi.db',
   operatorsAliases: false,
   sync: { force: false,
-    alter: true
-   },
-  define: {
-    timestamps: false,
-  },
+   alter: true
+   }
+  // define: {
+  //   timestamps: false,
+  // },
 };
 
 const sequelize = new Sequelize(options);
@@ -22,12 +22,12 @@ const sequelize = new Sequelize(options);
 
 sequelize
     .authenticate()
-    .then(function(err) {
-        console.log('Connection has been established successfully.');
-    })
     .then(() => {
       console.log('Synchronizing the models with the database...');
-      return sequelize.sync();
+     // return sequelize.sync();
+    })
+    .then(function(err) {
+        console.log('Connection has been established successfully.');
     })
     .catch(function (err) {
         console.log('Unable to connect to the database:', err);

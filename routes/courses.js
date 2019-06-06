@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
     include: [
       {
         model: User,
-        as: 'creator',
+       // as: 'userId',
         attributes: {
           exclude: ['id', 'password']
         }
@@ -46,7 +46,7 @@ router.get('/:id', (req, res) => {
     include: [
       {
         model: User,
-        as: 'creator',
+        //as: 'userId',
         attributes: {
           exclude: ['id', 'password']
         }
@@ -69,7 +69,7 @@ router.post('/', authUser.authenticateUser, function (req, res) {
     where: {
       emailAddress: credentials.name
     }
-  }).then(function (user) {
+  }).then(async function (user) {
       Course.create({
         title: req.body.title,
         description: req.body.description,
@@ -77,7 +77,7 @@ router.post('/', authUser.authenticateUser, function (req, res) {
         materialsNeeded: req.body.materialsNeeded,
         userId: user.id
       }).then(function (course) {
-        return res.status(201).end();
+        return res.status(201).end()
       }).catch(function (err) {
         if (err.name === "SequelizeValidationError") {
           return res.json({ 'Error': err.message });

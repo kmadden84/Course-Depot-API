@@ -14,7 +14,7 @@ authenticateUser = (req, res, next) => {
     })
       .then(function (user) {
         if (!user) {
-          res.status(401).json({ message: 'Invalid Username' });
+          res.status(401).json({ Error: 'You must be logged in to post data' });
         }
         else {
           bcryptjs.compare(credentials.pass, user.password, function (err, result) {
@@ -23,13 +23,13 @@ authenticateUser = (req, res, next) => {
               console.log(`Authentication successful for username: ${user.emailAddress}`);
               next();
             } else {
-              res.status(401).json({ message: 'Access Denied - Wrong Password TRY AGAIN' });
+              res.status(401).json({ Error: 'Access Denied - Wrong Password TRY AGAIN' });
             }
           });
         }
       });
   } else {
-    res.status(401).json({ message: 'Not logged in' });
+    res.status(401).json({ Error: 'Not logged in' });
   }
 }
 

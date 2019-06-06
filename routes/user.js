@@ -19,9 +19,9 @@ router.get('/', authUser.authenticateUser, (req, res) => {
     }
   }).then(async function (user) {
     if (!user) {
-      return res.sendStatus(400);
+      return res.sendStatus(400).end();
     } else {
-      return res.json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress });
+      return res.sendStatus(200).json({ 'First Name': user.firstName, 'Last Name': user.lastName, 'Email': user.emailAddress }).end();
     }
   });
 });

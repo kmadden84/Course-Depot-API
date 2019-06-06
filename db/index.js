@@ -9,9 +9,9 @@ const options = {
   dialect: 'sqlite',
   storage: 'fsjstd-restapi.db',
   operatorsAliases: false,
-  // sync: { force: false,
-  //   alter: true
-  //  },
+  sync: { force: false,
+    alter: true
+   },
   define: {
     timestamps: false,
   },
@@ -24,6 +24,10 @@ sequelize
     .authenticate()
     .then(function(err) {
         console.log('Connection has been established successfully.');
+    })
+    .then(() => {
+      console.log('Synchronizing the models with the database...');
+      return sequelize.sync();
     })
     .catch(function (err) {
         console.log('Unable to connect to the database:', err);

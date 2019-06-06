@@ -77,7 +77,7 @@ router.post('/', authUser.authenticateUser, function (req, res) {
         materialsNeeded: req.body.materialsNeeded,
         userId: user.id
       }).then(function (course) {
-        return res.status(201).end()
+        return res.location('/').status(201).end()
       }).catch(function (err) {
         if (err.name === "SequelizeValidationError") {
           return res.json({ 'Error': err.message });

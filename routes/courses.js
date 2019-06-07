@@ -77,7 +77,7 @@ router.post('/', authUser.authenticateUser, function (req, res) {
         materialsNeeded: req.body.materialsNeeded,
         userId: user.id
       }).then(function (course) {
-        return res.location('/').status(201).end()
+        return res.location('/').status(201).json({ 'Message': 'Course Added' });
       }).catch(function (err) {
         if (err.name === "SequelizeValidationError") {
           return res.json({ 'Error': err.message });
@@ -110,7 +110,7 @@ router.put('/:id', authUser.authenticateUser, function (req, res) {
             materialsNeeded: req.body.materialsNeeded,
             userId: user.id
           }).then(function (course) {
-            return res.status(201).end()
+            return res.status(200).end()
           }).catch(function (err) {
             if (err.name === "SequelizeValidationError") {
               return res.json({ 'Error': err.message });
@@ -135,11 +135,11 @@ router.delete("/:id", authUser.authenticateUser, function (req, res, next) {
   }).then(async function (user) {
       Course.findByPk(req.params.id).then(function (course) {
         if (course && course.userId !== user.id) {
-          return res.status(400).json({ 'Error': 'Only the course creator may delete the course' }).end()
+          return res.status(400).json({ 'Error': 'Only the course creator may delete the course' })
         }
         else if (course) {
           return course.destroy().then(function (course) {
-            return res.status(201).end();
+            return res.status(200).json({ 'Message': 'This course has been deleted' });
           });
         } else {
           return res.json({ 'Error': 'This course does not exist' });

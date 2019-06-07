@@ -28,10 +28,10 @@ router.get('/', authUser.authenticateUser, (req, res) => {
 
 router.post('/', function (req, res) {
   User.create(req.body).then(function (user) {
-    return res.location('/').status(201).end();
+    return res.location('/').status(200).json({ 'Message': 'User Added' });
   }).catch(function (err) {
     if (err.name === "SequelizeValidationError") {
-      return res.json({ 'Error': err.message });
+      return res.status(400).json({ 'Error': err.message  });
     } else {
       throw err;
     }

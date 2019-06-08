@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Please enter a title'
         },
         notEmpty: {
-          msg: "description cannot be empty"
+          msg: "title cannot be empty"
         }
       }
     },

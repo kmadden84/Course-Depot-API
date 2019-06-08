@@ -54,7 +54,7 @@ router.get('/:id', (req, res) => {
     ]
   }).then(function (courses) {
     if (!courses.length) {
-      return res.json({ 'Error': 'No Course Found With This Id' });
+      return res.status(400).json({ 'Error': 'No Course Found With This Id' }).end();
     } else {
       return res.json(courses)
     }
